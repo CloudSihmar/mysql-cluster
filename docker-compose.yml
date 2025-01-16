@@ -1,0 +1,76 @@
+version: "3"
+services: 
+
+ #mariadb-1
+ mariadb1:
+   image: mariadb:10.5
+   container_name: mariadb1
+   ports:
+    - "3306:3306"
+   env_file: .env
+   environment:
+    - MARIADB_USER=admin
+    - MARIADB_PASSWORD=Mariadb123456
+    - MARIADB_DATABASE=mariadb3
+    - MARIADB_ROOT_PASSWORD=Mariadb123123
+   volumes:
+    - /root/cluster/mariadb1/galera.cnf:/etc/mysql/mariadb.conf.d/galera.cnf
+   cap_add:
+    - all
+   networks:
+    - mariadb
+
+ #mariadb-2
+ mariadb2:
+   image: mariadb:10.5
+   container_name: mariadb2
+   ports:
+    - "3307:3306"
+   env_file: .env   
+   environment:
+    - MARIADB_USER=mariadb
+    - MARIADB_PASSWORD=Mariadb123456
+    - MARIADB_DATABASE=mariadb3
+    - MARIADB_ROOT_PASSWORD=Mariadb123123
+   volumes:
+    - /root/cluster/mariadb2/galera.cnf:/etc/mysql/mariadb.conf.d/galera.cnf
+   cap_add:
+    - all
+   networks:
+    - mariadb
+
+ #mariadb-3
+ mariadb3:
+   image: mariadb:10.5
+   container_name: mariadb3
+   ports:
+    - "3308:3306"
+   env_file: .env
+   volumes:
+    - /root/cluster/mariadb3/galera.cnf:/etc/mysql/mariadb.conf.d/galera.cnf
+   environment:
+    - MARIADB_USER=mariadb
+    - MARIADB_PASSWORD=Mariadb123456
+    - MARIADB_DATABASE=mariadb3
+    - MARIADB_ROOT_PASSWORD=Mariadb123123
+   cap_add:
+    - all
+   networks:
+    - mariadb
+
+ #proxysql
+ proxysql: 
+   image: proxysql/proxysql:latest
+   container_name: proxysql
+   ports:
+    - "6032:6032"
+    - "6070:6070"
+    - "6080:6080"
+   cap_add:
+    - all
+   networks:
+    - mariadb
+
+networks:
+  mariadb:
+     driver: overlay
